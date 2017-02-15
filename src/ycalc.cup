@@ -1,0 +1,54 @@
+import java.util.*;
+import java_cup.runtime.*;
+import Tree.*;
+   
+parser code {:
+    public Hashtable<String, Integer> variables
+        = new Hashtable<String, Integer>();
+    public void report_error(String message, Object info) {
+   
+        StringBuilder m = new StringBuilder("Error");
+   
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            if (s.left >= 0) {
+                m.append(" in line "+(s.left+1));
+                if (s.right >= 0)
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        m.append(" : "+message);
+   
+        System.err.println(m);
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+:};
+   
+
+   
+terminal           SEMI, PLUS, MINUS, LPAREN, RPAREN;
+terminal String   NUMBER;
+terminal           EQUALS;
+terminal String    ID;
+
+   
+non terminal EcuationNode ecuacion;
+non terminal ExpressionNode  term;
+non terminal ExpressionNode expression;
+
+
+ecuacion ::= expression:le EQUALS expression:re SEMI {:RESULT = new EcuationNode(le,re);:};
+
+expression ::=  n:la PLUS term:ra {:RESULT = new AdditionNode(la,ra); :}
+            | expression:l MINUS term:r {:RESULT = new SubstractionNode(l,r); :}
+            | term:t {:RESULT = t; :};
+
+term ::= NUMBER:n {: RESULT = new Term(n); :}
+        | ID:i {: RESULT = new Term(i); :}
+        | LPAREN expression:ex RPAREN {: RESULT = ex; :};
