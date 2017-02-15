@@ -37,15 +37,16 @@ terminal String   NUMBER;
 terminal           EQUALS;
 terminal String    ID;
 
-   
+non terminal EcuationsNode ecuations;
 non terminal EcuationNode ecuacion;
 non terminal ExpressionNode  term;
 non terminal ExpressionNode expression;
 
-
+ecuations ::= ecuations:es ecuacion:e {: es.Ecuations.add(e); RESULT = es;:}
+            | {:RESULT = new EcuationsNode();:};
 ecuacion ::= expression:le EQUALS expression:re SEMI {:RESULT = new EcuationNode(le,re);:};
 
-expression ::=  n:la PLUS term:ra {:RESULT = new AdditionNode(la,ra); :}
+expression ::= expression:la PLUS term:ra {:RESULT = new AdditionNode(la,ra); :}
             | expression:l MINUS term:r {:RESULT = new SubstractionNode(l,r); :}
             | term:t {:RESULT = t; :};
 
